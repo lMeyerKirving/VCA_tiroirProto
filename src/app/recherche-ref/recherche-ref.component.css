@@ -1,0 +1,32 @@
+/* Appliquer un style de base uniforme pour les champs input et select */
+input, select {
+  border: 1px solid #ADCB90; /* Couleur de bordure par défaut */
+  border-radius: 0.375rem; /* Coins arrondis */
+  padding: 0.75rem; /* Espacement interne */
+  transition: border-color 0.3s, box-shadow 0.3s; /* Transition fluide pour focus */
+}
+
+/* Style de focus uniforme */
+input:focus, select:focus {
+  outline: none; /* Supprime le contour par défaut */
+  border-color: #ADCB90; /* Couleur verte pour la bordure au focus */
+  box-shadow: 0 0 0 3px rgba(173, 203, 144, 0.4); /* Ombre verte légère */
+}
+
+/* Désactiver les champs */
+input:disabled, select:disabled {
+  background-color: #f9fafb; /* Couleur de fond pour les champs désactivés */
+  border-color: #d1d5db; /* Couleur de bordure pour les champs désactivés */
+  opacity: 0.5; /* Rendre visuellement désactivé */
+  cursor: not-allowed; /* Curseur interdit */
+}
+
+/* Style spécifique pour le champ Référence VCA (input avec id="reference") */
+#reference {
+  border-color: #d1bfa7; /* Couleur beige clair par défaut */
+}
+
+#reference:focus {
+  border-color: #d1bfa7; /* Couleur beige clair au focus */
+  box-shadow: 0 0 0 3px rgba(209, 191, 167, 0.4); /* Ombre beige claire */
+}
