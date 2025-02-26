@@ -68,7 +68,7 @@ export class BackendService {
   log(sessionID: string): Observable<any> {
 
 
-    this._baseUrl = `cocoon/View/ExecuteService/fr/AW_AuplResult3.text?${this.authInfos}${sessionID}&ServiceSubPackage=customer/Apps/DocCtrl&ServiceName=doc_CTRL.au&ServiceParameters=`;
+    this._baseUrl = `cocoon/View/ExecuteService/fr/AW_AuplResult3.text?${this.authInfos}${sessionID}&ServiceSubPackage=customer/Apps/photoPROTO&ServiceName=photo_PROTO.au&ServiceParameters=`;
     //this._baseUrl = `cocoon/View/ExecuteService/fr/AW_AuplResult3.text?${this.authInfos}${sessionID}&ServiceSubPackage=mehdi&ServiceName=doc_CTRL.au&ServiceParameters=`;
     console.log("url base est : ", this._baseUrl);
     const param = "login";
