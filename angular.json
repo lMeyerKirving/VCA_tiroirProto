@@ -13,8 +13,8 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/doc-controle",
-            "baseHref": "/apps/docCTRL/",
+            "outputPath": "dist/coffre-prototype",
+            "baseHref": "/apps/CoffrePrototype/",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [

@@ -22,53 +22,53 @@ export class BackendService {
 
   }
 
-  autologin(): Observable<any> {
-
-    const param = "login";
-    const data = "";
-
-    const url = `${this.audrosServer}${this._baseUrl}${param}@${data}@`;
-
-    return new Observable(observer => {
-      const url = `${this.audrosServer}cocoon/View/LoginCAD.xml?userName=${this.user}&computerName=AWS&userPassword=${this.psw}&dsn=dmsDS&Client_Type=${this.Ct}`;
-
-      this.http.get(url, {responseType: 'text'}).subscribe({
-        next: (response: string) => {
-          console.log("XML Response:", response);
-
-          // Parse the XML response using DOMParser
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(response, 'application/xml');
-
-          const resultElement = xmlDoc.querySelector('result');
-
-          if (resultElement) {
-            this._sessionId = resultElement.textContent || "";
-            console.log("Connected with session: ", this._sessionId);
-            this.connected.next(true);
-            this._baseUrl = `cocoon/View/ExecuteService/fr/AW_AuplResult3.text?${this.authInfos}${this._sessionId}&ServiceSubPackage=mehdi&ServiceName=doc_ctrl.au&ServiceParameters=`;
-            console.log("url base est : ", this._baseUrl)
-
-
-          } else {
-            console.error("Autologin failed: Unable to extract session id from XML");
-          }
-          // Assume successful login if we get here
-          observer.next(response); // Emit successful login
-          observer.complete(); // Complete the observable
-        },
-        error: (error) => {
-          //console.error("Autologin failed:", error);
-          observer.error(error); // Propagate error
-        }
-      });
-    });
-  }
+  // autologin(): Observable<any> {
+  //
+  //   const param = "login";
+  //   const data = "";
+  //
+  //   const url = `${this.audrosServer}${this._baseUrl}${param}@${data}@`;
+  //
+  //   return new Observable(observer => {
+  //     const url = `${this.audrosServer}cocoon/View/LoginCAD.xml?userName=${this.user}&computerName=AWS&userPassword=${this.psw}&dsn=dmsDS&Client_Type=${this.Ct}`;
+  //
+  //     this.http.get(url, {responseType: 'text'}).subscribe({
+  //       next: (response: string) => {
+  //         console.log("XML Response:", response);
+  //
+  //         // Parse the XML response using DOMParser
+  //         const parser = new DOMParser();
+  //         const xmlDoc = parser.parseFromString(response, 'application/xml');
+  //
+  //         const resultElement = xmlDoc.querySelector('result');
+  //
+  //         if (resultElement) {
+  //           this._sessionId = resultElement.textContent || "";
+  //           console.log("Connected with session: ", this._sessionId);
+  //           this.connected.next(true);
+  //           this._baseUrl = `cocoon/View/ExecuteService/fr/AW_AuplResult3.text?${this.authInfos}${this._sessionId}&ServiceSubPackage=mehdi&ServiceName=doc_ctrl.au&ServiceParameters=`;
+  //           console.log("url base est : ", this._baseUrl)
+  //
+  //
+  //         } else {
+  //           console.error("Autologin failed: Unable to extract session id from XML");
+  //         }
+  //         // Assume successful login if we get here
+  //         observer.next(response); // Emit successful login
+  //         observer.complete(); // Complete the observable
+  //       },
+  //       error: (error) => {
+  //         //console.error("Autologin failed:", error);
+  //         observer.error(error); // Propagate error
+  //       }
+  //     });
+  //   });
+  // }
 
   log(sessionID: string): Observable<any> {
 
 
-    this._baseUrl = `cocoon/View/ExecuteService/fr/AW_AuplResult3.text?${this.authInfos}${sessionID}&ServiceSubPackage=customer/Apps/photoPROTO&ServiceName=photo_PROTO.au&ServiceParameters=`;
+    this._baseUrl = `cocoon/View/ExecuteService/fr/AW_AuplResult3.text?${this.authInfos}${sessionID}&ServiceSubPackage=customer/Apps/photoProto&ServiceName=photo_PROTO.au&ServiceParameters=`;
     //this._baseUrl = `cocoon/View/ExecuteService/fr/AW_AuplResult3.text?${this.authInfos}${sessionID}&ServiceSubPackage=mehdi&ServiceName=doc_CTRL.au&ServiceParameters=`;
     console.log("url base est : ", this._baseUrl);
     const param = "login";
