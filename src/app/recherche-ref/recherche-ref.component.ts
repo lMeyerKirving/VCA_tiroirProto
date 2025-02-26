@@ -247,6 +247,7 @@
     }
 
 
+
     onLevelChange(): void {
       console.log('Niveau sélectionné : ', this.selectedLevel);
 
