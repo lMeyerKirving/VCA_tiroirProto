@@ -1,9 +1,6 @@
-
 <div class="bg-[#F8F5F0] min-h-screen flex flex-col">
   <!-- Bandeau supérieur -->
-
   <header class="bg-white border-b border-gray-200 py-6 shadow-sm flex items-center justify-between px-8">
-
     <!-- Logo à gauche -->
     <div class="flex items-center">
       <img src="3-logo-vca-green.png" alt="Logo Van Cleef & Arpels" class="h-16">
@@ -14,184 +11,243 @@
       {{ pageTitle }}
     </h1>
 
-    <!-- Espace vide pour équilibrer -->
-    <div class="w-16"></div>
-  </header>
+    <!-- Champ de recherche en haut à droite -->
+    <div class="flex flex-col items-end space-y-2">
+      <!-- Ligne avec l'input et le bouton -->
+      <div class="flex items-center space-x-2">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Rechercher"
+          class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-[#d1bfa7] text-gray-800"
+        />
+        <button
+          (click)="onSearch()"
+          class="bg-[#ADCB90] text-white px-4 py-2 rounded-md hover:bg-[#8CA774] transition"
+        >
+          Recherche
+        </button>
+      </div>
 
+      <!-- Petit texte en dessous de la barre de recherche et du bouton -->
+      <small class="text-gray-500 text-sm">
+        Veuillez entrer un numéro de série ou une référence SAP
+      </small>
+    </div>
+  </header>
 
   <!-- Contenu principal -->
   <main class="flex-1 px-8 py-10">
     <div class="flex flex-col lg:flex-row gap-8 w-full">
-      <!-- Bloc de gauche -->
+      <!-- Bloc de gauche : filtres (Segment, Pilier, Collection, Fonction) -->
       <div class="w-full lg:w-[20%] bg-white rounded-lg shadow-md p-8">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold text-gray-700 uppercase">Produit recherché</h2>
+          <h2 class="text-lg font-semibold text-gray-700 uppercase">Filtres</h2>
           <button (click)="resetFields()" class="text-gray-500 hover:text-gray-700 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4 20h5v-5m10-10h-5V4"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M20 11a8.001 8.001 0 00-15.874-1M4 4v5h5
+         M20 13a8.001 8.001 0 01-15.874 1M20 20v-5h-5"
+              />
             </svg>
           </button>
         </div>
 
-
-        <!-- Formulaire de recherche -->
-        <form (submit)="onSearch(); $event.preventDefault()" class="space-y-6">
-          <!-- Référence VCA -->
-          <div>
-            <label for="reference" class="block text-sm font-medium text-gray-600 mb-2">
-              Référence VCA
-            </label>
-            <input
-              id="reference"
-              type="text"
-              [(ngModel)]="searchTerm"
-              name="reference"
-              placeholder="Entrez une référence"
-              class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring focus:ring-[#d1bfa7] text-gray-800"
-            />
-          </div>
-
-          <!-- Segment -->
-          <div>
-            <label for="segment" class="block text-sm font-medium text-gray-600 mb-2">
-              Segment
-            </label>
-            <select
-              id="segment"
-              name="segment"
-              [(ngModel)]="selectedSegment"
-              (change)="onSegmentChange()"
-              class="w-full border border-gray-300 rounded-md p-3 focus:ring-[#ADCB90] text-gray-800 transition duration-300"
-            >
-              <option value="">-- Sélectionnez un segment --</option>
-              <option *ngFor="let segment of segments" [value]="segment.segment">{{ segment.segment }}</option>
-            </select>
-<!--            <small *ngIf="!selectedSegment" class="text-gray-500 text-sm mt-1">Choisissez un segment pour activer les piliers.</small>-->
-          </div>
-
-          <!-- Pilier -->
-          <div>
-            <label for="pilier" class="block text-sm font-medium text-gray-600 mb-2">
-              Pilier
-            </label>
-            <select
-              id="pilier"
-              name="pilier"
-              [(ngModel)]="selectedLevel"
-              (change)="onLevelChange()"
-              class="w-full border border-gray-300 rounded-md p-3 focus:ring-[#ADCB90] text-gray-800 transition duration-300"
-              [disabled]="!selectedSegment"
-              [ngClass]="{'opacity-50 cursor-not-allowed': !selectedSegment}"
-            >
-              <option value="">-- Sélectionnez un pilier --</option>
-              <option *ngFor="let level of filteredLevels" [value]="level.ref_utilisat">{{ level.ref_utilisat }}</option>
-            </select>
-            <small *ngIf="!selectedSegment" class="text-gray-500 text-sm mt-1">Sélectionnez d'abord un Segment</small>
-          </div>
-
-          <!-- Collection -->
-          <div>
-            <label for="collection" class="block text-sm font-medium text-gray-600 mb-2">
-              Collection
-            </label>
-            <select
-              id="collection"
-              name="collection"
-              [(ngModel)]="selectedUser"
-              class="w-full border border-gray-300 rounded-md p-3 focus:ring-[#ADCB90] text-gray-800 transition duration-300"
-              [disabled]="!selectedSegment || !selectedLevel"
-              [ngClass]="{'opacity-50 cursor-not-allowed': !selectedSegment || !selectedLevel}"
-            >
-              <option value="">-- Sélectionnez une collection --</option>
-              <option *ngFor="let user of filteredUsers" [value]="user.ref_utilisat">{{ user.ref_utilisat }}</option>
-            </select>
-            <small *ngIf="!selectedLevel" class="text-gray-500 text-sm mt-1">Sélectionnez d'abord un Pilier</small>
-
-          </div>
-
-          <!-- Fonction -->
-          <div>
-            <label for="fonction" class="block text-sm font-medium text-gray-600 mb-2">
-              Fonction
-            </label>
-            <select
-              id="fonction"
-              name="fonction"
-              [(ngModel)]="selectedFunction"
-              class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring focus:ring-[#ADCB90] text-gray-800"
-            >
-              <option value="">-- Sélectionnez une fonction --</option>
-              <option *ngFor="let func of functions" [value]="func.role">{{ func.role }}</option>
-            </select>
-          </div>
-
-          <!-- Bouton Rechercher -->
-          <button
-            type="submit"
-            class="w-full bg-[#ADCB90] text-white py-3 rounded-lg hover:bg-[#ADCB90] transition-all text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+        <!-- Segment -->
+        <div class="mb-6">
+          <label for="segment" class="block text-sm font-medium text-gray-600 mb-2">
+            Segment
+          </label>
+          <select
+            id="segment"
+            name="segment"
+            [(ngModel)]="selectedSegment"
+            (change)="onSegmentChange()"
+            class="w-full border border-gray-300 rounded-md p-3 focus:ring-[#ADCB90] text-gray-800 transition duration-300"
           >
-            Rechercher
-          </button>
-        </form>
+            <option value="">-- Sélectionnez un segment --</option>
+            <option *ngFor="let segment of segments" [value]="segment.segment">
+              {{ segment.segment }}
+            </option>
+          </select>
+        </div>
 
+        <!-- Pilier -->
+        <div class="mb-6">
+          <label for="pilier" class="block text-sm font-medium text-gray-600 mb-2">
+            Pilier
+          </label>
+          <select
+            id="pilier"
+            name="pilier"
+            [(ngModel)]="selectedLevel"
+            (change)="onLevelChange()"
+            class="w-full border border-gray-300 rounded-md p-3 focus:ring-[#ADCB90] text-gray-800 transition duration-300"
+            [disabled]="!selectedSegment"
+            [ngClass]="{'opacity-50 cursor-not-allowed': !selectedSegment}"
+          >
+            <option value="">-- Sélectionnez un pilier --</option>
+            <option
+              *ngFor="let level of filteredLevels"
+              [value]="level.ref_utilisat"
+            >
+              {{ level.ref_utilisat }}
+            </option>
+          </select>
+          <small *ngIf="!selectedSegment" class="text-gray-500 text-sm mt-1"
+          >Sélectionnez d'abord un Segment</small
+          >
+        </div>
 
-        <!-- Message pour aucun résultat -->
+        <!-- Collection -->
+        <div class="mb-6">
+          <label for="collection" class="block text-sm font-medium text-gray-600 mb-2">
+            Collection
+          </label>
+          <select
+            id="collection"
+            name="collection"
+            [(ngModel)]="selectedUser"
+            class="w-full border border-gray-300 rounded-md p-3 focus:ring-[#ADCB90] text-gray-800 transition duration-300"
+            [disabled]="!selectedSegment || !selectedLevel"
+            [ngClass]="{'opacity-50 cursor-not-allowed': !selectedSegment || !selectedLevel}"
+          >
+            <option value="">-- Sélectionnez une collection --</option>
+            <option *ngFor="let user of filteredUsers" [value]="user.ref_utilisat">
+              {{ user.ref_utilisat }}
+            </option>
+          </select>
+          <small *ngIf="!selectedLevel" class="text-gray-500 text-sm mt-1">Sélectionnez d'abord un Pilier</small>
+        </div>
+
+        <!-- Fonction -->
+        <div class="mb-6">
+          <label for="fonction" class="block text-sm font-medium text-gray-600 mb-2">
+            Prototypes & Testeurs
+          </label>
+          <select
+            id="fonction"
+            name="fonction"
+            [(ngModel)]="selectedFunction"
+            class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring focus:ring-[#ADCB90] text-gray-800"
+          >
+            <option value="">-- Sélectionnez un [...] --</option>
+            <option *ngFor="let func of functions" [value]="func.role">
+              {{ func.role }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Bouton Rechercher -->
+        <button
+          (click)="onSearch()"
+          type="submit"
+          class="w-full bg-[#ADCB90] text-white py-3 rounded-lg hover:bg-[#ADCB90] transition-all text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Rechercher
+        </button>
+
+        <!-- Message "Aucun résultat" s'il n'y a rien -->
         <div *ngIf="noResults" class="mt-4 text-center text-red-500">
-          Aucun résultat trouvé pour cette référence.
+          Aucun résultat trouvé.
         </div>
       </div>
 
-      <!-- Bloc de droite -->
+      <!-- Bloc de droite : résultats de la recherche -->
       <div class="w-full lg:w-[80%] bg-white rounded-lg shadow-md p-8">
         <h2 class="text-lg font-semibold text-gray-700 mb-6 uppercase" *ngIf="!isLoading && result?.ref_utilisat">
-          Résultats de la recherche <span class="text-sm text-gray-500 ml-2" *ngIf="resultCount > 0">({{ resultCount }} résultats)</span>
+          Résultats de la recherche
+          <span class="text-sm text-gray-500 ml-2" *ngIf="resultCount > 0">
+            ({{ resultCount }} résultats)
+          </span>
         </h2>
 
+        <div class="text-right">
+          <p class="text-gray-600 text-xs mb-1">
+            Pour savoir si le prototype est confié:
+          </p>
+          <a
+            href="https://richemont.sharepoint.com/:x:/r/sites/Gestiondesvaleurs/Shared%20Documents/Base%20Dev%20v5.xlsx?d=wc85e08ef275e40cb953ede6372401f26&csf=1&web=1&e=bSeLb7A"
+            target="_blank"
+            class="inline-block text-gray-800 py-2 px-4 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 text-center"
+          >
+            Base proto dev
+          </a>
+        </div>
 
-        <!-- Indicateur de chargement -->
+      <!-- Indicateur de chargement -->
         <div *ngIf="isLoading" class="flex flex-col justify-center items-center h-48 space-y-3">
-          <img src="loading-vca2.gif" alt="Chargement..." class="h-20 w-20">
+          <img src="loading-vca2.gif" alt="Chargement..." class="h-20 w-20" />
           <p class="text-gray-600 text-lg font-medium">Chargement...</p>
         </div>
 
-        <!-- Affichage des résultats uniquement si la recherche est terminée -->
+        <!-- Affichage des résultats -->
         <div *ngIf="!isLoading && result?.ref_utilisat; else noResultsState">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Parcourir les résultats -->
-            <div *ngFor="let ref of result.ref_utilisat"
-                 class="bg-white border border-black rounded-xl shadow-md flex flex-col overflow-hidden">
+            <div
+              *ngFor="let ref of result.ref_utilisat"
+              class="bg-white border border-gray-300 rounded-xl flex flex-col overflow-hidden"
+              style="box-shadow: none;"
+            >
               <!-- Image -->
               <div class="h-48 w-full bg-white">
-                <img [src]="ref.urlPicture || 'no_picture.png'" alt="{{ ref.designation }}" class="h-full w-full object-contain">
+                <img
+                  [src]="ref.urlPicture || 'no_picture.png'"
+                  alt="{{ ref.designation }}"
+                  class="h-full w-full object-contain"
+                />
               </div>
-              <!-- Lien cliquable -->
+
+              <!-- Infos du prototype -->
               <div class="flex-grow flex flex-col justify-center bg-white p-4">
-                <a href="{{ ref.url }}" target="_blank"
-                   class="block text-gray-800 text-center py-2 px-4 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-100">
-                  {{ ref.designation }}
-                </a>
+                <!-- Par exemple : Serial Number, Fabricant, Tiroir -->
+                <p class="text-gray-800 text-center mb-2">
+                  Serial Number: {{ ref.ref_utilisat }}
+                </p>
+                <p class="text-gray-800 text-center mb-2">
+                  Fabricant: {{ ref.VC4_fabricant }}
+                </p>
+                <p class="text-gray-800 text-center mb-4">
+                  Tiroir n° {{ ref.VC4_tiroir }}
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Gestion du premier affichage (message d'accueil) et du message "Aucun résultat" -->
+        <!-- État "pas de résultats" ou première visite -->
         <ng-template #noResultsState>
           <div *ngIf="!isLoading" class="mt-10 text-center">
             <div *ngIf="!hasSearched; else noResultsMessage">
-              <img src="search.png" alt="Recherche" class="h-16 w-16 mx-auto mb-4">
-              <p class="text-gray-600 text-lg font-medium">Bienvenue dans l'outil de recherche.</p>
-              <p class="text-gray-500 text-sm">Renseignez une référence et utilisez les filtres pour trouver vos documents.</p>
+              <img src="search.png" alt="Recherche" class="h-16 w-16 mx-auto mb-4" />
+              <p class="text-gray-600 text-lg font-medium">
+                Bienvenue dans l'outil de recherche.
+              </p>
+              <p class="text-gray-500 text-sm">
+                Saisissez un terme dans la barre en haut et utilisez les filtres à gauche.
+              </p>
             </div>
             <ng-template #noResultsMessage>
-              <p class="text-gray-600 text-lg">Aucun document correspondant n'a été trouvé.</p>
-              <p class="text-gray-500 text-sm">Essayez avec une autre référence ou contactez le support si le problème persiste.</p>
+              <p class="text-gray-600 text-lg">
+                Aucun document correspondant n'a été trouvé.
+              </p>
+              <p class="text-gray-500 text-sm">
+                Essayez avec un autre terme ou contactez le support si besoin.
+              </p>
             </ng-template>
           </div>
         </ng-template>
       </div>
-
-
     </div>
 
     <!-- Popup de déconnexion -->
@@ -199,12 +255,13 @@
       <div class="bg-white p-6 rounded-lg shadow-lg text-center">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Session expirée</h2>
         <p class="text-gray-600 mb-6">Vous avez été déconnecté. Veuillez vous reconnecter.</p>
-        <button (click)="redirectToLogin()" class="bg-[#ADCB90] text-white py-2 px-4 rounded-md hover:bg-[#8CA774] transition">
+        <button
+          (click)="redirectToLogin()"
+          class="bg-[#ADCB90] text-white py-2 px-4 rounded-md hover:bg-[#8CA774] transition"
+        >
           Reconnexion
         </button>
       </div>
     </div>
-
-
   </main>
 </div>
