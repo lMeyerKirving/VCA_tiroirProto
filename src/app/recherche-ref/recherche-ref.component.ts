@@ -75,9 +75,9 @@
         }
       });
       this.loadPageTitle();
-      this.loadLevels();
-      this.loadUsers();
-      this.loadFunctions();
+      this.loadPilier();
+      this.loadCollection();
+      this.loadFabricant();
       this.loadSegments();
 
     }
@@ -147,8 +147,8 @@
 
 
 
-  loadLevels(): void {
-    this.backendService.getLevell().subscribe({
+  loadPilier(): void {
+    this.backendService.getPilier().subscribe({
       next: (response) => {
         console.log('Levels reçus : ', response);
         this.levels = response.data?.map((level: { ref_utilisat: string; num_art: string }) => ({
@@ -161,8 +161,8 @@
     });
   }
 
-  loadUsers(): void {
-    this.backendService.getUsers().subscribe({
+  loadCollection(): void {
+    this.backendService.getCollection().subscribe({
       next: (response) => {
         console.log('Users reçus : ', response);
         this.users = response.data?.map((user: { niveau: string; num_art: string }) => ({
@@ -175,8 +175,8 @@
     });
   }
 
-  loadFunctions(): void {
-    this.backendService.getFonction().subscribe({
+  loadFabricant(): void {
+    this.backendService.getFabricant().subscribe({
       next: (response) => {
         console.log('Fabricant reçus :', response);
         this.functions = response.data?.map((func: { role: string; num_art: string }) => ({

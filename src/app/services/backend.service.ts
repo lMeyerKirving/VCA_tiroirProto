@@ -86,22 +86,22 @@ export class BackendService {
     return this.http.get<any>(url, { responseType: 'json' });
   }
 
-  getUsers(): Observable<any> {
+  getCollection(): Observable<any> {
     const param = "getCollection";
     const url = `${this.audrosServer}${this._baseUrl}${param}@`;
     console.log("URL générée pour getObjectByRef : ", url);
     return this.http.get<any>(url, { responseType: 'json' });
   }
 
-  getLevell(): Observable<any> {
+  getPilier(): Observable<any> {
     const param = "getPilier";
     const url = `${this.audrosServer}${this._baseUrl}${param}@`;
     console.log("URL générée pour getObjectByRef : ", url);
     return this.http.get<any>(url, { responseType: 'json' });
   }
 
-  getFonction(): Observable<any> {
-    const param = "getFonction";
+  getFabricant(): Observable<any> {
+    const param = "getFabricant";
     const url = `${this.audrosServer}${this._baseUrl}${param}@`;
     console.log("URL générée pour getObjectByRef : ", url);
     return this.http.get<any>(url, { responseType: 'json' });
