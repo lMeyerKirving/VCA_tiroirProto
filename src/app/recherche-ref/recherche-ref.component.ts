@@ -283,3 +283,9 @@
     protected readonly HTMLElement = HTMLElement;
     protected readonly style = style;
   }
+
+
+  //COLLECTION -> USER
+  //PILIER -> LEVEL
+  //SEGMENT -> SEGMENT
+  //FABRICANT -> FABRICANT
