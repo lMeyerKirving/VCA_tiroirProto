@@ -1,17 +1,19 @@
 <div class="bg-[#F8F5F0] min-h-screen flex flex-col">
   <!-- Bandeau supérieur -->
-  <header class="bg-white border-b border-gray-200 py-6 shadow-sm flex items-center justify-between px-8">
-    <!-- Logo à gauche -->
-    <div class="flex items-center">
+  <header class="bg-white border-b border-gray-200 py-6 shadow-sm px-8 grid grid-cols-3 items-center">
+    <!-- Colonne 1 : Logo -->
+    <div>
       <img src="3-logo-vca-green.png" alt="Logo Van Cleef & Arpels" class="h-16">
     </div>
 
-    <!-- Titre centré -->
-    <h1 class="text-3xl font-serif text-gray-700 text-center flex-grow tracking-widest uppercase">
-      {{ pageTitle }}
-    </h1>
+    <!-- Colonne 2 : Titre centré -->
+    <div>
+      <h1 class="text-3xl font-serif text-gray-700 text-center tracking-widest uppercase">
+        {{ pageTitle }}
+      </h1>
+    </div>
 
-    <!-- Champ de recherche en haut à droite -->
+    <!-- Colonne 3 : Champ de recherche -->
     <div class="flex flex-col items-end space-y-2">
       <!-- Ligne avec l'input et le bouton -->
       <div class="flex items-center space-x-2">
@@ -28,13 +30,13 @@
           Recherche
         </button>
       </div>
-
       <!-- Petit texte en dessous de la barre de recherche et du bouton -->
       <small class="text-gray-500 text-sm">
         Veuillez entrer un numéro de série ou une référence SAP
       </small>
     </div>
   </header>
+
 
   <!-- Contenu principal -->
   <main class="flex-1 px-8 py-10">
@@ -129,10 +131,10 @@
           <small *ngIf="!selectedLevel" class="text-gray-500 text-sm mt-1">Sélectionnez d'abord un Pilier</small>
         </div>
 
-        <!-- Fonction -->
+        <!-- Fabricant -->
         <div class="mb-6">
           <label for="fonction" class="block text-sm font-medium text-gray-600 mb-2">
-            Prototypes & Testeurs
+            Fabricant
           </label>
           <select
             id="fonction"
@@ -140,7 +142,7 @@
             [(ngModel)]="selectedFunction"
             class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring focus:ring-[#ADCB90] text-gray-800"
           >
-            <option value="">-- Sélectionnez un [...] --</option>
+            <option value="">-- Sélectionnez un fabricant --</option>
             <option *ngFor="let func of functions" [value]="func.role">
               {{ func.role }}
             </option>
@@ -164,24 +166,31 @@
 
       <!-- Bloc de droite : résultats de la recherche -->
       <div class="w-full lg:w-[80%] bg-white rounded-lg shadow-md p-8">
-        <h2 class="text-lg font-semibold text-gray-700 mb-6 uppercase" *ngIf="!isLoading && result?.ref_utilisat">
-          Résultats de la recherche
-          <span class="text-sm text-gray-500 ml-2" *ngIf="resultCount > 0">
-            ({{ resultCount }} résultats)
-          </span>
-        </h2>
 
-        <div class="text-right">
-          <p class="text-gray-600 text-xs mb-1">
-            Pour savoir si le prototype est confié:
-          </p>
-          <a
-            href="https://richemont.sharepoint.com/:x:/r/sites/Gestiondesvaleurs/Shared%20Documents/Base%20Dev%20v5.xlsx?d=wc85e08ef275e40cb953ede6372401f26&csf=1&web=1&e=bSeLb7A"
-            target="_blank"
-            class="inline-block text-gray-800 py-2 px-4 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 text-center"
-          >
-            Base proto dev
-          </a>
+        <!-- Titre + texte/bouton à droite -->
+        <div class="flex items-center justify-between mb-6" *ngIf="!isLoading && result?.ref_utilisat">
+          <!-- Titre à gauche -->
+          <h2 class="text-lg font-semibold text-gray-700 uppercase">
+            Résultats de la recherche
+            <span class="text-sm text-gray-500 ml-2" *ngIf="resultCount > 0">
+        ({{ resultCount }} résultats)
+      </span>
+          </h2>
+
+          <!-- Petit texte et bouton alignés à droite -->
+          <div class="flex items-center justify-end space-x-2">
+            <p class="text-gray-600 text-xs">
+              Pour savoir si le prototype est confié:
+            </p>
+            <a
+              href="https://richemont.sharepoint.com/:x:/r/sites/Gestiondesvaleurs/Shared%20Documents/Base%20Dev%20v5.xlsx?d=wc85e08ef275e40cb953ede6372401f26&csf=1&web=1&e=bSeLb7A"
+              target="_blank"
+              class="inline-block text-white py-2 px-4 rounded-md transition bg-[#d1bfa7] hover:bg-[#b7a890] text-center"
+              style="background-color: #d1bfa7"
+            >
+              Accéder à la base Dev
+            </a>
+          </div>
         </div>
 
       <!-- Indicateur de chargement -->

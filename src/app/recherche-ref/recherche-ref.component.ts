@@ -4,6 +4,7 @@
   import {NgClass, NgForOf, NgIf} from '@angular/common';
   import { ActivatedRoute, Router } from '@angular/router';
   import { Title } from '@angular/platform-browser';
+  import {style} from '@angular/animations';
 
 
   @Component({
@@ -97,7 +98,7 @@
         `SEG:${selectedSegmentNumArt}`,
         `PIL:${selectedLevelNumArt}`,      // Pilier (num_art ou "0")
         `COL:${selectedUserNumArt}`,       // Collection (num_art ou "0")
-        `FCT:${selectedFunctionNumArt}`,   // Fonction (num_art ou "0")
+        `FCT:${selectedFunctionNumArt}`,   // Fabricant (num_art ou "0")
         `TYPE:${this.type || ''}`          // Ajout du type à la requête
       ].join(';'); // Concaténer avec ';' comme séparateur
 
@@ -177,14 +178,14 @@
   loadFunctions(): void {
     this.backendService.getFonction().subscribe({
       next: (response) => {
-        console.log('Fonctions reçues :', response);
+        console.log('Fabricant reçus :', response);
         this.functions = response.data?.map((func: { role: string; num_art: string }) => ({
           ...func,
           role: func.role, // Conserver le rôle
           num_art: func.num_art // Ajout de num_art
         })) || [];
       },
-      error: (err) => console.error('Erreur lors du chargement des fonctions :', err),
+      error: (err) => console.error('Erreur lors du chargement des Fabricant :', err),
     });
   }
 
@@ -279,5 +280,6 @@
     }
 
 
-
+    protected readonly HTMLElement = HTMLElement;
+    protected readonly style = style;
   }
