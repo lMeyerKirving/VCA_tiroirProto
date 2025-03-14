@@ -131,23 +131,42 @@
           <small *ngIf="!selectedLevel" class="text-gray-500 text-sm mt-1">Sélectionnez d'abord un Pilier</small>
         </div>
 
-        <!-- Fabricant -->
+        <!-- Fonction -->
         <div class="mb-6">
           <label for="fonction" class="block text-sm font-medium text-gray-600 mb-2">
-            Fabricant
+            Fonction
           </label>
           <select
             id="fonction"
             name="fonction"
-            [(ngModel)]="selectedFunction"
+            [(ngModel)]="selectedFonction"
             class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring focus:ring-[#ADCB90] text-gray-800"
           >
-            <option value="">-- Sélectionnez un fabricant --</option>
-            <option *ngFor="let func of functions" [value]="func.role">
-              {{ func.role }}
+            <option value="">-- Sélectionnez une fonction --</option>
+            <option *ngFor="let fct of fonctions" [value]="fct.role">
+              {{ fct.role }}
             </option>
           </select>
         </div>
+
+        <!-- Fabricant -->
+        <div class="mb-6">
+          <label for="fabricant" class="block text-sm font-medium text-gray-600 mb-2">
+            Fabricant
+          </label>
+          <select
+            id="fabricant"
+            name="fabricant"
+            [(ngModel)]="selectedFabricant"
+            class="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring focus:ring-[#ADCB90] text-gray-800"
+          >
+            <option value="">-- Sélectionnez un fabricant --</option>
+            <option *ngFor="let fab of fabricants" [value]="fab.role">
+              {{ fab.role }}
+            </option>
+          </select>
+        </div>
+
 
         <!-- Bouton Rechercher -->
         <button
@@ -173,7 +192,7 @@
           <h2 class="text-lg font-semibold text-gray-700 uppercase">
             Résultats de la recherche
             <span class="text-sm text-gray-500 ml-2" *ngIf="resultCount > 0">
-        ({{ resultCount }} résultats)
+        ({{ resultCount }} )
       </span>
           </h2>
 
@@ -204,35 +223,41 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Parcourir les résultats -->
             <div
-              *ngFor="let ref of result.ref_utilisat"
-              class="bg-white border border-gray-300 rounded-xl flex flex-col overflow-hidden"
+              *ngFor="let doc of result.ref_utilisat"
+              (click)="openProto(doc)"
+              class="relative bg-white border border-gray-300 rounded-xl overflow-hidden flex flex-col
+             cursor-pointer transition
+             hover:shadow-lg hover:-translate-y-1 hover:bg-gray-50
+             hover:scale-105 transform"
               style="box-shadow: none;"
             >
-              <!-- Image -->
-              <div class="h-48 w-full bg-white">
+              <!-- Image plus haute (par ex. 36) -->
+              <div class="p-2 flex items-center justify-center border-b border-gray-200">
                 <img
-                  [src]="ref.urlPicture || 'no_picture.png'"
-                  alt="{{ ref.designation }}"
-                  class="h-full w-full object-contain"
+                  [src]="doc.urlPicture || 'no_picture.png'"
+                  [alt]="doc.designation"
+                  class="h-36 w-auto object-contain"
                 />
               </div>
 
-              <!-- Infos du prototype -->
-              <div class="flex-grow flex flex-col justify-center bg-white p-4">
-                <!-- Par exemple : Serial Number, Fabricant, Tiroir -->
-                <p class="text-gray-800 text-center mb-2">
-                  Serial Number: {{ ref.ref_utilisat }}
-                </p>
-                <p class="text-gray-800 text-center mb-2">
-                  Fabricant: {{ ref.VC4_fabricant }}
-                </p>
-                <p class="text-gray-800 text-center mb-4">
-                  Tiroir n° {{ ref.VC4_tiroir }}
+              <!-- Infos minimalistes -->
+              <div class="p-2 flex flex-col items-center text-center flex-grow">
+                <!-- Désignation en petit titre -->
+                <h3 class="text-sm font-medium text-gray-800 mb-1">
+                  {{ doc.designation }}
+                </h3>
+
+                <!-- Tout sur une seule ligne, séparé par des barres verticales ou des pipes -->
+                <p class="text-xs text-gray-600">
+                  Fabricant : {{ doc.fabricant }} | Tiroir: {{ doc.tiroir }}
                 </p>
               </div>
             </div>
           </div>
         </div>
+
+
+
 
         <!-- État "pas de résultats" ou première visite -->
         <ng-template #noResultsState>
@@ -272,5 +297,76 @@
         </button>
       </div>
     </div>
+
+    <!-- Arrière-plan -->
+    <div
+      *ngIf="showModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+      (click)="closeModal()"
+    >
+      <!-- Conteneur popup, hauteur fixe, on empêche le clic de remonter -->
+      <div
+        class="relative w-full max-w-5xl p-8 rounded-2xl shadow-xl bg-[#F8F5F0] border border-[#d1bfa7]"
+        style="border-width: 2px; height: 80vh; overflow-y: auto;"
+        (click)="$event.stopPropagation()"
+      >
+        <!-- Bouton de fermeture -->
+        <button (click)="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+          <!-- Icon X -->
+        </button>
+
+        <h2 class="text-lg font-normal font-serif text-gray-800 text-center mb-6">
+          Attachements du prototype
+        </h2>
+
+        <hr class="border-t border-[#d1bfa7] mb-4" />
+
+        <!-- Grille d'attachements : on affiche seulement paginatedAttachments -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            *ngFor="let att of paginatedAttachments"
+            (click)="openAttachment(att.url)"
+            class="relative bg-white p-4 border border-gray-200
+               rounded-lg flex flex-col items-center
+               transition cursor-pointer
+               hover:shadow-lg hover:-translate-y-0.5 hover:border-[#d1bfa7]
+               hover:bg-gradient-to-b hover:from-white hover:to-[#faf9f7]"
+          >
+            <img
+              [src]="att.urlPicture || 'no_picture.png'"
+              alt="{{ att.file_name }}"
+              class="h-36 w-auto object-contain mb-4"
+            />
+            <p class="px-3 py-1 text-sm text-gray-700 font-normal border border-gray-300 rounded-md">
+              {{ att.file_name }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Barre de pagination -->
+        <div class="flex items-center justify-center mt-4 space-x-4">
+          <button
+            (click)="prevPage()"
+            [disabled]="currentPage === 1"
+            class="px-3 py-1 bg-gray-200 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Précédent
+          </button>
+          <span class="text-gray-600">
+        Page {{ currentPage }} / {{ totalPages }}
+      </span>
+          <button
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages"
+            class="px-3 py-1 bg-gray-200 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Suivant
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+
   </main>
 </div>

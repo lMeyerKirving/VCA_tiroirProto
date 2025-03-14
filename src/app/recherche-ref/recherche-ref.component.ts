@@ -1,291 +1,369 @@
-  import { Component } from '@angular/core';
-  import { BackendService } from '../services/backend.service';
-  import { FormsModule } from '@angular/forms';
-  import {NgClass, NgForOf, NgIf} from '@angular/common';
-  import { ActivatedRoute, Router } from '@angular/router';
-  import { Title } from '@angular/platform-browser';
-  import {style} from '@angular/animations';
+import { Component } from '@angular/core';
+import { BackendService } from '../services/backend.service';
+import { FormsModule } from '@angular/forms';
+import { NgClass, NgForOf, NgIf } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
+import { style } from '@angular/animations';
+
+@Component({
+  selector: 'app-recherche-ref',
+  standalone: true,
+  templateUrl: './recherche-ref.component.html',
+  styleUrls: ['./recherche-ref.component.css'],
+  imports: [ FormsModule, NgIf, NgForOf, NgClass ]
+})
+export class RechercheRefComponent {
+  searchTerm: string = '';
+  result: any = null;
+  noResults: boolean = false;
+
+  // Session / config
+  sessionID: string | null = null;
+  baseURL: string | null = null;
+  serv: string | null = null;
+
+  // Sélections
+  selectedSegment: string = '';
+  selectedLevel: string = '';
+  selectedUser: string = '';
+
+  // Sélections distinctes pour Fabricant et Fonction
+  selectedFabricant: string = '';
+  selectedFonction: string = '';
+
+  // Données
+  segments: any[] = [];
+  levels: any[] = [];
+  users: any[] = [];
+
+  // Fabricants et Fonctions séparés
+  fabricants: any[] = [];
+  fonctions: any[] = [];
+
+  filteredLevels: any[] = [];
+  filteredUsers: any[] = [];
+
+  pageTitle: string = '';
+  type: string = "Coffre Prototype";
+
+  isLoading: boolean = false;
+  isDisconnected: boolean = false;
+  hasSearched: boolean = false;
+  resultCount: number = 0;
+
+  // Pop-up
+  attachments: any[] = [];
+  showModal: boolean = false;
+
+  // Nouveau champ pour gérer pagination
+  pageSize = 9;        // 9 attachements par page
+  currentPage = 1;     // Page courante
 
 
-  @Component({
-    selector: 'app-recherche-ref',
-    standalone: true,
-    templateUrl: './recherche-ref.component.html',
-    styleUrls: ['./recherche-ref.component.css'],
-    imports: [
-      FormsModule,
-      NgIf,
-      NgForOf,
-      NgClass
-    ]
-  })
-  export class RechercheRefComponent {
+  constructor(
+    private backendService: BackendService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private titleService: Title
+  ) {}
 
-    searchTerm: string = ''; // Contient la référence utilisateur saisie
-    result: any = null; // Résultat obtenu après recherche
-    noResults: boolean = false; // Indique si aucun résultat n'a été trouvé
-    sessionID: string | null = null;
-    baseURL: string | null = null;
-    serv: string | null = null;
+  ngOnInit(): void {
+    const currentUrl = window.location.href;
+    const urlObject = new URL(currentUrl);
+    this.baseURL = `${urlObject.origin}/`;
+    this.serv = `${urlObject.origin}`;
+    this.backendService.audrosServer = this.baseURL;
 
-    selectedFunction: string = '';
+    this.route.queryParamMap.subscribe((params) => {
+      this.sessionID = params.get('AUSessionID');
+      console.log('SessionID :', this.sessionID);
 
-    constructor(private backendService: BackendService, private route: ActivatedRoute, private router: Router,  private titleService: Title) {}
+      if (this.sessionID) {
+        // Connexion
+        this.backendService.log(this.sessionID).subscribe({
+          next: (response) => console.log('Connexion réussie :', response),
+          error: (err) => console.error('Erreur de connexion :', err),
+        });
+      }
+    });
 
-    levels: any[] = []; // Liste des Levels
-    users: any[] = []; // Liste des Users
-    filteredLevels: any[] = []; // Liste des Levels filtrés selon le Segment sélectionné
-    filteredUsers: any[] = []; // Liste des Users filtrés selon le Level sélectionné
-    functions: any[] = [];
-    segments: any[] = []; // Liste des Segments
+    this.loadPageTitle();
 
-    selectedLevel: string = ''; // Niveau sélectionné
-    selectedUser: string = ''; // Utilisateur sélectionné
-    selectedSegment: string = '';
+    // Chargement des données
+    this.loadSegments();
+    this.loadPilier();
+    this.loadCollection();
 
-    pageTitle: string = '';
-    type: string | null = null; // Type de l'application
+    // On sépare Fabricant et Fonction
+    this.loadFabricant();
+    this.loadFonction();
+  }
 
-    isLoading: boolean = false;
-    isDisconnected: boolean = false;
-    hasSearched: boolean = false;
-
-    resultCount: number = 0;
-
-
-
-
-    ngOnInit(): void {
-      const currentUrl = window.location.href;
-      const urlObject = new URL(currentUrl);
-
-      this.baseURL = `${urlObject.origin}/`;
-      this.serv = `${urlObject.origin}`;
-      this.backendService.audrosServer = this.baseURL;
-      this.route.queryParamMap.subscribe((params) => {
-        this.sessionID = params.get('AUSessionID');
-        this.type = params.get('type');
-        console.log('SessionID :', this.sessionID);
-
-        if (this.sessionID) {
-          this.backendService.log(this.sessionID).subscribe({
-            next: (response) => console.log('Connexion réussie :', response),
-            error: (err) => console.error('Erreur de connexion :', err),
-          });
-        }
-      });
-      this.loadPageTitle();
-      this.loadPilier();
-      this.loadCollection();
-      this.loadFabricant();
-      this.loadSegments();
-
-    }
-
-    onSearch(): void {
-      this.isLoading = true;
-      this.hasSearched = true; // L'utilisateur a lancé une recherche
-      // Récupérer les num_art pour chaque champ sélectionné ou définir "0" par défaut
-      const selectedLevelNumArt = this.levels.find(level => level.ref_utilisat === this.selectedLevel)?.num_art || '0';
-      const selectedUserNumArt = this.users.find(user => user.ref_utilisat === this.selectedUser)?.num_art || '0';
-      const selectedFunctionNumArt = this.functions.find(func => func.role === this.selectedFunction)?.num_art || '0';
-      const selectedSegmentNumArt = this.segments.find(segment => segment.segment === this.selectedSegment)?.num_art || '0';
-
-
-      // Construire la chaîne avec les champs et leurs num_art ou "0"
-      const searchParameters = [
-        `VCA:${this.searchTerm || ''}`,    // Référence VCA
-        `SEG:${selectedSegmentNumArt}`,
-        `PIL:${selectedLevelNumArt}`,      // Pilier (num_art ou "0")
-        `COL:${selectedUserNumArt}`,       // Collection (num_art ou "0")
-        `FCT:${selectedFunctionNumArt}`,   // Fabricant (num_art ou "0")
-        `TYPE:${this.type || ''}`          // Ajout du type à la requête
-      ].join(';'); // Concaténer avec ';' comme séparateur
-
-      console.log('Paramètres de recherche :', searchParameters);
-
-      // Appel au backend
-      this.backendService.getObjectByRef(searchParameters, this.serv).subscribe({
+  // ----------- Chargement des data depuis le backend -----------
+  loadPageTitle(): void {
+    if (this.type) {
+      this.backendService.getName(this.type).subscribe({
         next: (response) => {
-          console.log('Réponse du backend :', response);
-
-          const documents = response.data
-            ?.flatMap((item: any) => item.documents) || [];
-          this.noResults = documents.length === 0;
-
-          if (!this.noResults) {
-            this.result = {
-              ref_utilisat: documents.map((doc: any) => ({
-                ref_utilisat: doc.ref_utilisat,
-                designation: doc.designation,
-                urlPicture: doc.urlPicture,
-                url: doc.url,
-              })),
-            };
-          } else {
-            this.result = null; // Réinitialiser les résultats si aucun document
-          }
-          this.resultCount = this.result?.ref_utilisat?.length || 0;
-          console.log('Résultat formaté :', this.result);
+          const data = response.data?.[0];
+          this.pageTitle = data?.titre || '';
+          this.titleService.setTitle(this.pageTitle || 'Van Cleef & Arpels - Recherche');
         },
         error: (err) => {
-          if (err.status === 200) {
-            // ==> le backend est complètement indisponible ou unreachable (il envoie une requette http au lieu d'un json) //TODO : tester les limite de cette methode
-            // C’est ici que tu affiches un popup "Serveur indisponible" par exemple
-            //alert('Serveur indisponible');
-            this.isDisconnected = true;
-          } else {
-            // Autre type d’erreur (4xx, 5xx, problème de parsing, etc.)
-            console.error('Erreur applicative ou autre :', err);
-          }
+          console.error('Erreur lors du chargement du titre :', err);
+          this.pageTitle = 'Something went wrong';
+          this.titleService.setTitle(this.pageTitle);
         },
-        complete: () => {
-          this.isLoading = false; // Fin du chargement
-        }
       });
+    } else {
+      console.error('Type non défini');
+      this.pageTitle = 'Titre not provided';
+      this.titleService.setTitle(this.pageTitle);
     }
+  }
 
-
+  loadSegments(): void {
+    this.backendService.getSegment().subscribe({
+      next: (response) => {
+        this.segments = response.data?.map((segment: { segment: string; num_art: string }) => ({
+          ...segment,
+          segment: segment.segment,
+          num_art: segment.num_art,
+        })) || [];
+      },
+      error: (err) => console.error('Erreur Segments :', err),
+    });
+  }
 
   loadPilier(): void {
     this.backendService.getPilier().subscribe({
       next: (response) => {
-        console.log('Levels reçus : ', response);
         this.levels = response.data?.map((level: { ref_utilisat: string; num_art: string }) => ({
           ...level,
-          ref_utilisat: level.ref_utilisat, // Normalisation en minuscules
-          num_art: level.num_art // Ajout de num_art
+          ref_utilisat: level.ref_utilisat,
+          num_art: level.num_art
         })) || [];
       },
-      error: (err) => console.error('Erreur lors du chargement des Levels :', err)
+      error: (err) => console.error('Erreur Pilier :', err)
     });
   }
 
   loadCollection(): void {
     this.backendService.getCollection().subscribe({
       next: (response) => {
-        console.log('Users reçus : ', response);
         this.users = response.data?.map((user: { niveau: string; num_art: string }) => ({
           ...user,
-          niveau: user.niveau, // Normalisation en minuscules
-          num_art: user.num_art // Ajout de num_art
+          niveau: user.niveau,
+          num_art: user.num_art
         })) || [];
       },
-      error: (err) => console.error('Erreur lors du chargement des Users :', err)
+      error: (err) => console.error('Erreur Collection :', err)
     });
   }
 
   loadFabricant(): void {
     this.backendService.getFabricant().subscribe({
       next: (response) => {
-        console.log('Fabricant reçus :', response);
-        this.functions = response.data?.map((func: { role: string; num_art: string }) => ({
-          ...func,
-          role: func.role, // Conserver le rôle
-          num_art: func.num_art // Ajout de num_art
+        // On stocke la liste des Fabricants
+        this.fabricants = response.data?.map((fab: { role: string; num_art: string }) => ({
+          ...fab,
+          role: fab.role,
+          num_art: fab.num_art
         })) || [];
       },
-      error: (err) => console.error('Erreur lors du chargement des Fabricant :', err),
+      error: (err) => console.error('Erreur Fabricant :', err),
     });
   }
 
-  loadSegments(): void {
-    this.backendService.getSegment().subscribe({
+  loadFonction(): void {
+    this.backendService.getFonction("").subscribe({
       next: (response) => {
-        console.log('Segments reçus :', response);
-        this.segments = response.data?.map((segment: {segment: string; num_art: string }) => ({
-          ...segment,
-          segment: segment.segment,
-          num_art: segment.num_art,
+        // On stocke la liste des Fonctions
+        this.fonctions = response.data?.map((f: { role: string; num_art: string }) => ({
+          ...f,
+          role: f.role,
+          num_art: f.num_art
         })) || [];
       },
-      error: (err) => console.error('Erreur lors du chargement des Segments :', err),
+      error: (err) => console.error('Erreur Fonction :', err),
     });
   }
 
-    loadPageTitle(): void {
-      if (this.type) { // Vérifie que "type" est défini avant d'appeler le backend
-        console.log('Type dans l\'url : ', this.type)
-        this.backendService.getName(this.type).subscribe({
-          next: (response) => {
-            const data = response.data?.[0];
-            this.pageTitle = data?.titre || ''; // Utilisation du titre reçu
-
-            // Met à jour le titre de l'onglet du navigateur
-            this.titleService.setTitle(this.pageTitle || 'Van Cleef & Arpels - Recherche');
-          },
-          error: (err) => {
-            console.error('Erreur lors du chargement du titre :', err);
-            this.pageTitle = 'Something went wrong'; // Valeur par défaut en cas d'erreur
-            this.titleService.setTitle(this.pageTitle); // Met à jour le titre avec la valeur par défaut
-          },
-        });
-      } else {
-        console.error('Type non défini dans l’URL');
-        this.pageTitle = 'Titre not provided'; // Valeur par défaut si aucun type n'est défini
-        this.titleService.setTitle(this.pageTitle);
-      }
-    }
-
-
-
-    onSegmentChange(): void {
-      console.log('Segment sélectionné : ', this.selectedSegment);
-
-      if (this.selectedSegment) {
-        // Filtrer les piliers selon le segment
-        this.filteredLevels = this.levels.filter(level => level.segment === this.selectedSegment);
-        this.selectedLevel = ''; // Réinitialiser le Pilier à la valeur par défaut
-        this.filteredUsers = []; // Réinitialiser les collections
-        this.selectedUser = ''; // Réinitialiser la Collection
-      } else {
-        // Si le segment est désélectionné, réinitialiser tous les champs dépendants
-        this.filteredLevels = [];
-        this.selectedLevel = ''; // Réinitialiser le Pilier
-        this.filteredUsers = [];
-        this.selectedUser = ''; // Réinitialiser la Collection
-      }
-    }
-
-
-
-    onLevelChange(): void {
-      console.log('Niveau sélectionné : ', this.selectedLevel);
-
-      if (this.selectedLevel) {
-        // Filtrer les collections selon le Pilier sélectionné
-        this.filteredUsers = this.users.filter(user => user.niveau.toLowerCase() === this.selectedLevel.toLowerCase());
-        this.selectedUser = ''; // Réinitialiser la Collection
-      } else {
-        // Si le Pilier est désélectionné, réinitialiser les collections
-        this.filteredUsers = [];
-        this.selectedUser = ''; // Réinitialiser la Collection
-      }
-    }
-
-    redirectToLogin(): void {
-      window.location.href = `${this.serv}/apps/aud-portal-app/`;
-    }
-
-    resetFields(): void {
-      this.searchTerm = '';
-      this.selectedSegment = '';
+  // ----------- Filtres dépendants -----------
+  onSegmentChange(): void {
+    if (this.selectedSegment) {
+      this.filteredLevels = this.levels.filter(l => l.segment === this.selectedSegment);
       this.selectedLevel = '';
+      this.filteredUsers = [];
       this.selectedUser = '';
-      this.selectedFunction = '';
-      this.result = null;
-      this.resultCount = 0;
-      this.noResults = false;
-      this.hasSearched = false;
+    } else {
+      this.filteredLevels = [];
+      this.selectedLevel = '';
+      this.filteredUsers = [];
+      this.selectedUser = '';
     }
-
-
-    protected readonly HTMLElement = HTMLElement;
-    protected readonly style = style;
   }
 
+  onLevelChange(): void {
+    if (this.selectedLevel) {
+      this.filteredUsers = this.users.filter(u => u.niveau.toLowerCase() === this.selectedLevel.toLowerCase());
+      this.selectedUser = '';
+    } else {
+      this.filteredUsers = [];
+      this.selectedUser = '';
+    }
+  }
 
-  //COLLECTION -> USER
-  //PILIER -> LEVEL
-  //SEGMENT -> SEGMENT
-  //FABRICANT -> FABRICANT
+  // ----------- Recherche -----------
+  onSearch(): void {
+    this.isLoading = true;
+    this.hasSearched = true;
+
+    // Récupérer num_art ou "0"
+    const selectedSegmentNumArt = this.segments.find(s => s.segment === this.selectedSegment)?.num_art || '0';
+    const selectedLevelNumArt   = this.levels.find(l => l.ref_utilisat === this.selectedLevel)?.num_art || '0';
+    const selectedUserNumArt    = this.users.find(u => u.ref_utilisat === this.selectedUser)?.num_art || '0';
+
+    // Fabricant et Fonction
+    const selectedFabricantNumArt = this.fabricants.find(f => f.role === this.selectedFabricant)?.num_art || '0';
+    const selectedFonctionNumArt  = this.fonctions.find(f => f.role === this.selectedFonction)?.num_art || '0';
+
+    // Construction des paramètres
+    // On met FAB pour Fabricant, FCT pour Fonction
+    const searchParameters = [
+      `VCA:${this.searchTerm || ''}`,      // Référence VCA
+      `SEG:${selectedSegmentNumArt}`,
+      `PIL:${selectedLevelNumArt}`,        // Pilier
+      `COL:${selectedUserNumArt}`,         // Collection
+      `FAB:${selectedFabricantNumArt}`,    // Fabricant
+      `FCT:${selectedFonctionNumArt}`,     // Fonction
+      `TYPE:${this.type || ''}`            // Type
+    ].join(';');
+
+    console.log('Paramètres de recherche :', searchParameters);
+
+    this.backendService.getObjectByRef(searchParameters, this.serv).subscribe({
+      next: (response) => {
+        console.log('Réponse du backend :', response);
+
+        const documents = response.data?.flatMap((item: any) => item.documents) || [];
+        this.noResults = documents.length === 0;
+
+        if (!this.noResults) {
+          this.result = {
+            ref_utilisat: documents.map((doc: any) => ({
+              ref_utilisat: doc.ref_utilisat,
+              designation: doc.designation,
+              urlPicture: doc.urlPicture,
+              url: doc.url,
+              fabricant: doc.Fabricant,
+              tiroir: doc.Tiroir,
+              // + si tu veux la fonction ...
+            })),
+          };
+        } else {
+          this.result = null;
+        }
+        this.resultCount = this.result?.ref_utilisat?.length || 0;
+      },
+      error: (err) => {
+        if (err.status === 200) {
+          this.isDisconnected = true;
+        } else {
+          console.error('Erreur applicative :', err);
+        }
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // ----------------------------
+  // Popup attachements + pagination
+  // ----------------------------
+
+  get totalPages(): number {
+    return Math.ceil(this.attachments.length / this.pageSize);
+  }
+
+  get paginatedAttachments() {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    return this.attachments.slice(startIndex, endIndex);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  openProto(doc: any): void {
+    if (!doc?.ref_utilisat) {
+      return;
+    }
+    this.isLoading = true;
+    const param = doc.ref_utilisat;
+
+    this.backendService.getAttachment(param, this.serv).subscribe({
+      next: (response) => {
+        console.log('Attachements reçus :', response);
+
+        // Extraire / aplatir si besoin
+        const docs = response.data?.flatMap((item: any) => item.documents) || [];
+        this.attachments = docs.map((d: any) => ({
+          file_name: d.file_name,
+          urlPicture: d.urlPicture,
+          url: d.url
+        }));
+
+        // On ouvre la pop-up
+        this.showModal = true;
+        // On revient page 1 par défaut
+        this.currentPage = 1;
+      },
+      error: (err) => {
+        console.error('Erreur getAttachment :', err);
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.attachments = [];
+  }
+
+  openAttachment(url: string): void {
+    if (url) {
+      window.open(url, '_blank');
+    }
+  }
+
+  // ----------- Divers -----------
+  redirectToLogin(): void {
+    window.location.href = `${this.serv}/apps/aud-portal-app/`;
+  }
+
+  resetFields(): void {
+    this.searchTerm = '';
+    this.selectedSegment = '';
+    this.selectedLevel = '';
+    this.selectedUser = '';
+    this.selectedFabricant = '';
+    this.selectedFonction = '';
+    this.result = null;
+    this.resultCount = 0;
+    this.noResults = false;
+    this.hasSearched = false;
+  }
+}
