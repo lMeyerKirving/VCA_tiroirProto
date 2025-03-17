@@ -56,9 +56,6 @@ export class RechercheRefComponent {
   attachments: any[] = [];
   showModal: boolean = false;
 
-  // Nouveau champ pour gérer pagination
-  pageSize = 9;        // 9 attachements par page
-  currentPage = 1;     // Page courante
 
 
   constructor(
@@ -233,12 +230,13 @@ export class RechercheRefComponent {
     const searchParameters = [
       `VCA:${this.searchTerm || ''}`,      // Référence VCA
       `SEG:${selectedSegmentNumArt}`,
-      `PIL:${selectedLevelNumArt}`,        // Pilier
-      `COL:${selectedUserNumArt}`,         // Collection
-      `FAB:${selectedFabricantNumArt}`,    // Fabricant
-      `FCT:${selectedFonctionNumArt}`,     // Fonction
-      `TYPE:${this.type || ''}`            // Type
+      `PIL:${selectedLevelNumArt}`,
+      `COL:${selectedUserNumArt}`,
+      `FAB:${selectedFabricantNumArt}`,
+      `FCT:${selectedFonctionNumArt}`,
+      `TYPE:${this.type || ''}`
     ].join(';');
+
 
     console.log('Paramètres de recherche :', searchParameters);
 
@@ -279,15 +277,15 @@ export class RechercheRefComponent {
     });
   }
 
-  // ----------------------------
-  // Popup attachements + pagination
-  // ----------------------------
+  // ----------- Popup attachements -----------
+  pageSize = 9;
+  currentPage = 1;
 
   get totalPages(): number {
     return Math.ceil(this.attachments.length / this.pageSize);
   }
 
-  get paginatedAttachments() {
+  get paginatedAttachments(): any[] {
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     return this.attachments.slice(startIndex, endIndex);
@@ -305,50 +303,51 @@ export class RechercheRefComponent {
     }
   }
 
+// Quand on ouvre la pop-up
   openProto(doc: any): void {
     if (!doc?.ref_utilisat) {
       return;
     }
     this.isLoading = true;
-    const param = doc.ref_utilisat;
 
-    this.backendService.getAttachment(param, this.serv).subscribe({
+    this.backendService.getAttachment(doc.ref_utilisat, this.serv).subscribe({
       next: (response) => {
         console.log('Attachements reçus :', response);
 
-        // Extraire / aplatir si besoin
-        const docs = response.data?.flatMap((item: any) => item.documents) || [];
+        // "response.data" est déjà un tableau
+        const docs = response.data || [];
+
+        // On mappe chaque objet vers la structure de "attachments"
         this.attachments = docs.map((d: any) => ({
           file_name: d.file_name,
           urlPicture: d.urlPicture,
           url: d.url
         }));
 
-        // On ouvre la pop-up
+        // Ouvrir la pop-up et réinitialiser la page
         this.showModal = true;
-        // On revient page 1 par défaut
         this.currentPage = 1;
       },
-      error: (err) => {
-        console.error('Erreur getAttachment :', err);
-      },
+      error: (err) => console.error('Erreur getAttachment :', err),
       complete: () => {
         this.isLoading = false;
       }
     });
   }
 
+
+// Fermer la pop-up
   closeModal(): void {
     this.showModal = false;
     this.attachments = [];
   }
 
+// Ouvrir l'attachment
   openAttachment(url: string): void {
     if (url) {
       window.open(url, '_blank');
     }
   }
-
   // ----------- Divers -----------
   redirectToLogin(): void {
     window.location.href = `${this.serv}/apps/aud-portal-app/`;
@@ -366,4 +365,6 @@ export class RechercheRefComponent {
     this.noResults = false;
     this.hasSearched = false;
   }
+
+  protected readonly Math = Math;
 }
