@@ -258,11 +258,11 @@ export class RechercheRefComponent {
               tiroir: doc.Tiroir,
 
               /* Nouveaux champs */
-              okShooting: doc.okShooting,
-              okIndus: doc.okIndus,
+              okShooting: doc.okShooting.toLowerCase(),
+              okIndus: doc.okIndus.toLowerCase(),
               isValid: doc.isValid,
               phaseProjet: doc.phaseProjet,
-              materiau: doc.type_materiaux,
+              materiau: doc.materiau,
               refPF: doc.refPF,
               statutPF: doc.statutPF,
             }))

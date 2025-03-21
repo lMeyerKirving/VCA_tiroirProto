@@ -261,29 +261,46 @@
               <div class="px-2 py-1 flex items-center justify-between text-xs bg-[#f9f9f7]">
                 <!-- OK Shooting -->
                 <div class="flex items-center space-x-1">
-                  <span>OK Shooting?</span>
-                  <span
-                    *ngIf="doc.okShooting === 'yes'; else noShooting"
-                    class="text-green-600 font-bold"
-                  >&#10003;</span>
-                  <ng-template #noShooting>
-                    <span class="text-red-500 font-bold">&#10005;</span>
-                  </ng-template>
+                  <span>OK Shooting :</span>
+                  <ng-container [ngSwitch]="doc.okShooting">
+                    <!-- Si "valide" => pastille verte -->
+                    <span *ngSwitchCase="'yes'"
+                          class="text-green-600 font-bold">&#10003;
+                    </span>
+
+                    <!-- Si "refusé" => pastille rouge -->
+                    <span *ngSwitchCase="'no'"
+                          class="text-red-500 font-bold">&#10005;
+                    </span>
+
+                    <!-- Sinon afficher directement la valeur (ex: "en cours") -->
+                    <span *ngSwitchDefault class="text-orange-500 font-bold">
+                      &#10067;
+                    </span>
+                  </ng-container>
                 </div>
 
                 <!-- OK Indus -->
                 <div class="flex items-center space-x-1">
-                  <span>OK Indus?</span>
-                  <span
-                    *ngIf="doc.okIndus === 'yes'; else noIndus"
-                    class="text-green-600 font-bold"
-                  >&#10003;</span>
-                  <ng-template #noIndus>
-                    <span class="text-red-500 font-bold">&#10005;</span>
-                  </ng-template>
+                  <span>OK Indus :</span>
+                  <ng-container [ngSwitch]="doc.okIndus">
+                    <!-- Si "valide" => pastille verte -->
+                    <span *ngSwitchCase="'yes'"
+                          class="text-green-600 font-bold">&#10003;
+                    </span>
+
+                    <!-- Si "refusé" => pastille rouge -->
+                    <span *ngSwitchCase="'no'"
+                          class="text-red-500 font-bold">&#10005;
+                    </span>
+
+                    <!-- Sinon afficher directement la valeur (ex: "en cours") -->
+                    <span *ngSwitchDefault>
+                      &#10067;
+                    </span>
+                  </ng-container>
                 </div>
 
-                <!-- Données validées -->
                 <!-- Données validées (switch sur doc.isValid) -->
                 <div class="flex items-center space-x-1">
                   <span>Données validées:</span>
@@ -291,19 +308,19 @@
                     <!-- Si "valide" => pastille verte -->
                     <span *ngSwitchCase="'validé'"
                           class="bg-green-200 text-green-800 px-2 py-0.5 rounded">
-              Validé
-            </span>
+                      Validé
+                    </span>
 
                     <!-- Si "refusé" => pastille rouge -->
                     <span *ngSwitchCase="'refusé'"
                           class="bg-red-200 text-red-800 px-2 py-0.5 rounded">
-              Refusé
-            </span>
+                      Refusé
+                    </span>
 
                     <!-- Sinon afficher directement la valeur (ex: "en cours") -->
                     <span *ngSwitchDefault>
-              {{ doc.isValid }}
-            </span>
+                      {{ doc.isValid }}
+                    </span>
                   </ng-container>
                 </div>
               </div>
