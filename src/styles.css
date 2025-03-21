@@ -13,10 +13,12 @@ body {
   background-color: #f8f5f0; /* Fond général */
   color: #333333; /* Couleur de texte par défaut */
   margin: 0;
+  font-variant-numeric: lining-nums;
 }
 
 h1, h2, h3 {
   font-family: 'Playfair Display', serif; /* Titres élégants */
+  font-variant-numeric: lining-nums;
 }
 
 button {

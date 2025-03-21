@@ -244,7 +244,7 @@ export class RechercheRefComponent {
       next: (response) => {
         console.log('Réponse du backend :', response);
 
-        const documents = response.data?.flatMap((item: any) => item.documents) || [];
+        const documents = response.data || [];
         this.noResults = documents.length === 0;
 
         if (!this.noResults) {

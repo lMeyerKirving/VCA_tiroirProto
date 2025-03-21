@@ -1,19 +1,20 @@
+<!-- Corps principal, en police Inter -->
 <div class="bg-[#F8F5F0] min-h-screen flex flex-col">
   <!-- Bandeau supérieur -->
   <header class="bg-white border-b border-gray-200 py-6 shadow-sm px-8 grid grid-cols-3 items-center">
     <!-- Colonne 1 : Logo -->
     <div>
-      <img src="3-logo-vca-green.png" alt="Logo Van Cleef & Arpels" class="h-16">
+      <img src="3-logo-vca-green.png" alt="Logo Van Cleef & Arpels" class="h-16" />
     </div>
 
     <!-- Colonne 2 : Titre centré -->
     <div>
-      <h1 class="text-3xl font-serif text-gray-700 text-center tracking-widest uppercase">
+      <h1 class="text-3xl text-gray-700 text-center tracking-widest uppercase">
         {{ pageTitle }}
       </h1>
     </div>
 
-    <!-- Colonne 3 : Champ de recherche -->
+    <!-- Colonne 3 : Barre de recherche -->
     <div class="flex flex-col items-end space-y-2">
       <!-- Ligne avec l'input et le bouton -->
       <div class="flex items-center space-x-2">
@@ -30,18 +31,17 @@
           Recherche
         </button>
       </div>
-      <!-- Petit texte en dessous de la barre de recherche et du bouton -->
+      <!-- Petit texte en dessous -->
       <small class="text-gray-500 text-sm">
         Veuillez entrer un numéro de série ou une référence SAP
       </small>
     </div>
   </header>
 
-
   <!-- Contenu principal -->
   <main class="flex-1 px-8 py-10">
     <div class="flex flex-col lg:flex-row gap-8 w-full">
-      <!-- Bloc de gauche : filtres (Segment, Pilier, Collection, Fonction) -->
+      <!-- Bloc de gauche : filtres -->
       <div class="w-full lg:w-[20%] bg-white rounded-lg shadow-md p-8">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold text-gray-700 uppercase">Filtres</h2>
@@ -128,7 +128,9 @@
               {{ user.ref_utilisat }}
             </option>
           </select>
-          <small *ngIf="!selectedLevel" class="text-gray-500 text-sm mt-1">Sélectionnez d'abord un Pilier</small>
+          <small *ngIf="!selectedLevel" class="text-gray-500 text-sm mt-1"
+          >Sélectionnez d'abord un Pilier</small
+          >
         </div>
 
         <!-- Fonction -->
@@ -167,7 +169,6 @@
           </select>
         </div>
 
-
         <!-- Bouton Rechercher -->
         <button
           (click)="onSearch()"
@@ -177,26 +178,23 @@
           Rechercher
         </button>
 
-        <!-- Message "Aucun résultat" s'il n'y a rien -->
+        <!-- Message "Aucun résultat" -->
         <div *ngIf="noResults" class="mt-4 text-center text-red-500">
           Aucun résultat trouvé.
         </div>
       </div>
 
-      <!-- Bloc de droite : résultats de la recherche -->
+      <!-- Bloc de droite : résultats -->
       <div class="w-full lg:w-[80%] bg-white rounded-lg shadow-md p-8">
-
-        <!-- Titre + texte/bouton à droite -->
+        <!-- Titre + bouton alignés à droite -->
         <div class="flex items-center justify-between mb-6" *ngIf="!isLoading && result?.ref_utilisat">
-          <!-- Titre à gauche -->
           <h2 class="text-lg font-semibold text-gray-700 uppercase">
             Résultats de la recherche
-            <span class="text-sm text-gray-500 ml-2" *ngIf="resultCount > 0">
-        ({{ resultCount }} )
-      </span>
+            <span class="text-gray-500 ml-2" *ngIf="resultCount > 0">
+              ({{ resultCount }})
+            </span>
           </h2>
 
-          <!-- Petit texte et bouton alignés à droite -->
           <div class="flex items-center justify-end space-x-2">
             <p class="text-gray-600 text-xs">
               Pour savoir si le prototype est confié:
@@ -205,14 +203,13 @@
               href="https://richemont.sharepoint.com/:x:/r/sites/Gestiondesvaleurs/Shared%20Documents/Base%20Dev%20v5.xlsx?d=wc85e08ef275e40cb953ede6372401f26&csf=1&web=1&e=bSeLb7A"
               target="_blank"
               class="inline-block text-white py-2 px-4 rounded-md transition bg-[#d1bfa7] hover:bg-[#b7a890] text-center"
-              style="background-color: #d1bfa7"
             >
               Accéder à la base Dev
             </a>
           </div>
         </div>
 
-      <!-- Indicateur de chargement -->
+        <!-- Indicateur de chargement -->
         <div *ngIf="isLoading" class="flex flex-col justify-center items-center h-48 space-y-3">
           <img src="loading-vca2.gif" alt="Chargement..." class="h-20 w-20" />
           <p class="text-gray-600 text-lg font-medium">Chargement...</p>
@@ -226,12 +223,12 @@
               *ngFor="let doc of result.ref_utilisat"
               (click)="openProto(doc)"
               class="relative bg-white border border-gray-300 rounded-xl overflow-hidden flex flex-col
-             cursor-pointer transition
-             hover:shadow-lg hover:-translate-y-1 hover:bg-gray-50
-             hover:scale-105 transform"
+                     cursor-pointer transition
+                     hover:shadow-lg hover:-translate-y-1 hover:bg-gray-50
+                     hover:scale-105 transform"
               style="box-shadow: none;"
             >
-              <!-- Image plus haute (par ex. 36) -->
+              <!-- Image -->
               <div class="p-2 flex items-center justify-center border-b border-gray-200">
                 <img
                   [src]="doc.urlPicture || 'no_picture.png'"
@@ -240,14 +237,11 @@
                 />
               </div>
 
-              <!-- Infos minimalistes -->
+              <!-- Infos -->
               <div class="p-2 flex flex-col items-center text-center flex-grow">
-                <!-- Désignation en petit titre -->
                 <h3 class="text-sm font-medium text-gray-800 mb-1">
                   {{ doc.designation }}
                 </h3>
-
-                <!-- Tout sur une seule ligne, séparé par des barres verticales ou des pipes -->
                 <p class="text-xs text-gray-600">
                   Fabricant : {{ doc.fabricant }} | Tiroir: {{ doc.tiroir }}
                 </p>
@@ -255,9 +249,6 @@
             </div>
           </div>
         </div>
-
-
-
 
         <!-- État "pas de résultats" ou première visite -->
         <ng-template #noResultsState>
@@ -298,21 +289,20 @@
       </div>
     </div>
 
-    <!-- Si showModal est vrai, on affiche la pop-up -->
+    <!-- Popup attachements -->
     <div
       *ngIf="showModal"
       class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
       (click)="closeModal()"
     >
-      <!-- Conteneur principal de la pop-up -->
       <div
         class="relative bg-[#F8F5F0] border border-[#d1bfa7] rounded-2xl shadow-xl"
         style="
-      border-width: 2px;
-      width: 70vw;
-      max-width: 1100px;
-      height: auto;
-    "
+          border-width: 2px;
+          width: 70vw;
+          max-width: 1100px;
+          height: auto;
+        "
         (click)="$event.stopPropagation()"
       >
         <!-- Bouton de fermeture -->
@@ -336,34 +326,26 @@
           </svg>
         </button>
 
-        <!-- Contenu -->
         <div class="p-6 flex flex-col items-center">
-          <!-- Titre -->
-          <h2 class="text-lg font-normal font-serif text-gray-800 text-center mb-4">
+          <h2 class="text-lg font-normal text-gray-800 text-center mb-4">
             Attachements du prototype
           </h2>
 
           <hr class="border-t border-[#d1bfa7] mb-4 w-full" />
 
-          <!--
-            On teste si on a des attachements.
-            S'il y en a, on affiche la grille + pagination comme avant
-            Sinon, on affiche un petit message "Aucun attachement"
-          -->
+          <!-- Affiche la grille si attachments > 0, sinon message "Aucun attachement" -->
           <ng-container *ngIf="attachments.length > 0; else noAttachments">
-            <!-- Conteneur scrollable horizontal si la grille dépasse la largeur dispo -->
             <div class="w-full overflow-x-auto overflow-y-hidden flex justify-center">
-              <!-- Grille 3 colonnes, 3 rangs (total 9 tuiles max) -->
               <div class="grid grid-rows-3 gap-4" style="width: 992px;">
                 <div
                   *ngFor="let att of paginatedAttachments; let i = index"
                   (click)="openAttachment(att.url)"
                   class="bg-white border border-gray-200 rounded-xl
-                     flex flex-col items-center justify-center
-                     p-6 w-80 h-48
-                     cursor-pointer transition
-                     hover:shadow-md hover:-translate-y-1 hover:border-[#d1bfa7]
-                     hover:bg-gradient-to-b hover:from-white hover:to-[#faf9f7]"
+                         flex flex-col items-center justify-center
+                         p-6 w-80 h-48
+                         cursor-pointer transition
+                         hover:shadow-md hover:-translate-y-1 hover:border-[#d1bfa7]
+                         hover:bg-gradient-to-b hover:from-white hover:to-[#faf9f7]"
                   [style.gridColumn]="(i % 3) + 1"
                   [style.gridRow]="Math.floor(i/3) + 1"
                 >
@@ -374,7 +356,7 @@
                   />
                   <p
                     class="px-5 py-2 text-base text-gray-800 font-medium
-                       border border-gray-300 rounded-lg text-center w-full"
+                           border border-gray-300 rounded-lg text-center w-full"
                   >
                     {{ att.file_name }}
                   </p>
@@ -382,37 +364,37 @@
               </div>
             </div>
 
-            <!-- Barre de pagination -->
+            <!-- Pagination -->
             <div class="mt-4 flex items-center justify-center gap-4 w-full" *ngIf="totalPages > 1">
               <button
                 (click)="prevPage()"
                 [disabled]="currentPage === 1"
                 class="w-24 py-2 text-sm font-medium rounded-md
-                   bg-[#ADCB90] text-white hover:shadow
-                   disabled:opacity-50 disabled:cursor-not-allowed
-                   transition"
+                       bg-[#ADCB90] text-white hover:shadow
+                       disabled:opacity-50 disabled:cursor-not-allowed
+                       transition"
               >
                 Précédent
               </button>
 
               <span class="text-gray-700 text-sm font-medium">
-            Page {{ currentPage }} / {{ totalPages }}
-          </span>
+                Page {{ currentPage }} / {{ totalPages }}
+              </span>
 
               <button
                 (click)="nextPage()"
                 [disabled]="currentPage === totalPages"
                 class="w-24 py-2 text-sm font-medium rounded-md
-                   bg-[#ADCB90] text-white hover:shadow
-                   disabled:opacity-50 disabled:cursor-not-allowed
-                   transition"
+                       bg-[#ADCB90] text-white hover:shadow
+                       disabled:opacity-50 disabled:cursor-not-allowed
+                       transition"
               >
                 Suivant
               </button>
             </div>
           </ng-container>
 
-          <!-- Cas aucun attachement -->
+          <!-- Aucun attachement -->
           <ng-template #noAttachments>
             <div class="flex flex-col items-center justify-center" style="height: 200px;">
               <p class="text-gray-700 text-lg font-medium mb-2">
@@ -427,14 +409,5 @@
         </div>
       </div>
     </div>
-
-
-
-
-
-
-
-
-
   </main>
 </div>
