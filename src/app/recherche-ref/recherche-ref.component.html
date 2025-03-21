@@ -215,40 +215,124 @@
           <p class="text-gray-600 text-lg font-medium">Chargement...</p>
         </div>
 
-        <!-- Affichage des résultats -->
+        <!--Affichage des résultats -->
         <div *ngIf="!isLoading && result?.ref_utilisat; else noResultsState">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Réduire un peu l'espace entre les tuiles : gap-4 au lieu de gap-6 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <!-- Parcourir les résultats -->
             <div
               *ngFor="let doc of result.ref_utilisat"
               (click)="openProto(doc)"
-              class="relative bg-white border border-gray-300 rounded-xl overflow-hidden flex flex-col
-                     cursor-pointer transition
-                     hover:shadow-lg hover:-translate-y-1 hover:bg-gray-50
-                     hover:scale-105 transform"
+              class="relative bg-white border border-gray-300 rounded-xl overflow-hidden
+             cursor-pointer transition
+             hover:shadow-lg hover:-translate-y-1 hover:bg-gray-50
+             hover:scale-105 transform flex flex-col"
               style="box-shadow: none;"
             >
-              <!-- Image -->
-              <div class="p-2 flex items-center justify-center border-b border-gray-200">
-                <img
-                  [src]="doc.urlPicture || 'no_picture.png'"
-                  [alt]="doc.designation"
-                  class="h-36 w-auto object-contain"
-                />
+              <!-- Bloc supérieur : photo (2/3) + infos (1/3) -->
+              <div class="flex border-b border-gray-200">
+                <!-- Photo à gauche : réduire la hauteur (h-28) et padding (p-2) -->
+                <div class="w-2/3 p-2 flex items-center justify-center bg-white">
+                  <img
+                    [src]="doc.urlPicture || 'no_picture.png'"
+                    class="h-28 w-auto object-contain"
+                    [alt]="doc.designation"
+                  />
+                </div>
+                <!-- Infos phase projet, etc. à droite (1/3) : p-2 et moins de margin -->
+                <div class="w-1/3 p-2 flex flex-col justify-center text-xs text-gray-700 space-y-0.5">
+                  <div>
+                    <strong>Phase:</strong> {{ doc.phaseProjet }}
+                  </div>
+                  <div>
+                    <strong>Matériau:</strong> {{ doc.materiau }}
+                  </div>
+                  <div>
+                    <strong>Réf PF:</strong> {{ doc.refPF }}
+                  </div>
+                  <div>
+                    <strong>Statut PF:</strong> {{ doc.statutPF }}
+                  </div>
+                </div>
               </div>
 
-              <!-- Infos -->
-              <div class="p-2 flex flex-col items-center text-center flex-grow">
-                <h3 class="text-sm font-medium text-gray-800 mb-1">
+              <!-- Barre intermédiaire : OK Shooting, OK Indus, Données validées -->
+              <!-- On supprime la border-b pour réduire un trait supplémentaire -->
+              <div class="px-2 py-1 flex items-center justify-between text-xs bg-[#f9f9f7]">
+                <!-- OK Shooting -->
+                <div class="flex items-center space-x-1">
+                  <span>OK Shooting?</span>
+                  <span
+                    *ngIf="doc.okShooting === 'yes'; else noShooting"
+                    class="text-green-600 font-bold"
+                  >&#10003;</span>
+                  <ng-template #noShooting>
+                    <span class="text-red-500 font-bold">&#10005;</span>
+                  </ng-template>
+                </div>
+
+                <!-- OK Indus -->
+                <div class="flex items-center space-x-1">
+                  <span>OK Indus?</span>
+                  <span
+                    *ngIf="doc.okIndus === 'yes'; else noIndus"
+                    class="text-green-600 font-bold"
+                  >&#10003;</span>
+                  <ng-template #noIndus>
+                    <span class="text-red-500 font-bold">&#10005;</span>
+                  </ng-template>
+                </div>
+
+                <!-- Données validées -->
+                <!-- Données validées (switch sur doc.isValid) -->
+                <div class="flex items-center space-x-1">
+                  <span>Données validées:</span>
+                  <ng-container [ngSwitch]="doc.isValid">
+                    <!-- Si "valide" => pastille verte -->
+                    <span *ngSwitchCase="'validé'"
+                          class="bg-green-200 text-green-800 px-2 py-0.5 rounded">
+              Validé
+            </span>
+
+                    <!-- Si "refusé" => pastille rouge -->
+                    <span *ngSwitchCase="'refusé'"
+                          class="bg-red-200 text-red-800 px-2 py-0.5 rounded">
+              Refusé
+            </span>
+
+                    <!-- Sinon afficher directement la valeur (ex: "en cours") -->
+                    <span *ngSwitchDefault>
+              {{ doc.isValid }}
+            </span>
+                  </ng-container>
+                </div>
+              </div>
+
+              <!-- Partie centrale : ref_utilisat et designation, plus compacte -->
+              <div class="px-2 py-1 flex flex-col items-center justify-center text-sm text-gray-700 space-y-0.5">
+                <div>
+                  {{ doc.ref_utilisat }}
+                </div>
+                <div>
                   {{ doc.designation }}
-                </h3>
-                <p class="text-xs text-gray-600">
-                  Fabricant : {{ doc.fabricant }} | Tiroir: {{ doc.tiroir }}
-                </p>
+                </div>
+              </div>
+
+              <!-- Bas : Fabricant et Tiroir -->
+              <!-- On enlève la border-t pour moins de traits, p-2 -> p-1 pour compacter -->
+              <div class="px-2 py-1 text-sm text-gray-700 bg-white flex justify-center">
+        <span class="text-gray-600">
+          <strong>Fabricant :</strong> {{ doc.fabricant }}
+          &nbsp; | &nbsp;
+          <strong>Tiroir:</strong> {{ doc.tiroir }}
+        </span>
               </div>
             </div>
           </div>
         </div>
+
+
+
 
         <!-- État "pas de résultats" ou première visite -->
         <ng-template #noResultsState>

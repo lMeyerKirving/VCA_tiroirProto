@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { BackendService } from '../services/backend.service';
 import { FormsModule } from '@angular/forms';
-import { NgClass, NgForOf, NgIf } from '@angular/common';
+import {NgClass, NgForOf, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault} from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { style } from '@angular/animations';
@@ -11,7 +11,7 @@ import { style } from '@angular/animations';
   standalone: true,
   templateUrl: './recherche-ref.component.html',
   styleUrls: ['./recherche-ref.component.css'],
-  imports: [ FormsModule, NgIf, NgForOf, NgClass ]
+  imports: [FormsModule, NgIf, NgForOf, NgClass, NgSwitchCase, NgSwitchDefault, NgSwitch]
 })
 export class RechercheRefComponent {
   searchTerm: string = '';
@@ -256,8 +256,17 @@ export class RechercheRefComponent {
               url: doc.url,
               fabricant: doc.Fabricant,
               tiroir: doc.Tiroir,
-              // + si tu veux la fonction ...
-            })),
+
+              /* Nouveaux champs */
+              okShooting: doc.okShooting,
+              okIndus: doc.okIndus,
+              isValid: doc.isValid,
+              phaseProjet: doc.phaseProjet,
+              materiau: doc.type_materiaux,
+              refPF: doc.refPF,
+              statutPF: doc.statutPF,
+            }))
+            ,
           };
         } else {
           this.result = null;
